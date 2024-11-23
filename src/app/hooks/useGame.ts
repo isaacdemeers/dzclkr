@@ -2,17 +2,11 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useProgress } from './useProgress';
+import { updateGenerators, generateNewGenerator } from '@/utils/generatorUtils';
+import { GeneratorType } from '@/types/game';
 
 // Types pour les améliorations
 type UpgradeCategory = 'basic' | 'advanced' | 'military' | 'quantum';
-
-interface Generator {
-    id: string;
-    name: string;
-    cost: number;
-    production: number;
-    owned: number;
-}
 
 interface Upgrade {
     id: string;
@@ -28,10 +22,8 @@ export function useGame() {
     const [pwr, setPwr] = useState(0);
     const [pwrPerClick, setPwrPerClick] = useState(0.1);
     const [pwrPerSecond, setPwrPerSecond] = useState(0);
-    const [generators, setGenerators] = useState([
-        { id: 'gen1', name: 'Basic Generator', cost: 10, production: 0.1, owned: 0 },
-        { id: 'gen2', name: 'Advanced Generator', cost: 100, production: 1, owned: 0 },
-        { id: 'gen3', name: 'Quantum Generator', cost: 1000, production: 10, owned: 0 },
+    const [generators, setGenerators] = useState<GeneratorType[]>([
+        generateNewGenerator(0, []) // Premier générateur
     ]);
 
     const [upgrades, setUpgrades] = useState<Upgrade[]>([
@@ -77,12 +69,58 @@ export function useGame() {
         setPowerBoostActive(prev => !prev);
     }, []);
 
-    const calculatePwrPerSecond = useCallback(() => {
-        const total = generators.reduce((acc, gen) => {
-            return acc + (gen.production * gen.owned);
-        }, 0);
-        setPwrPerSecond(total);
+    // Vérifier et mettre à jour les générateurs périodiquement
+    useEffect(() => {
+        const updatedGenerators = updateGenerators(generators, pwr);
+        if (updatedGenerators.length !== generators.length) {
+            setGenerators(updatedGenerators);
+        }
+    }, [pwr, generators]);
+
+    const calculateEffects = useCallback(() => {
+        let totalClickMultiplier = 1;
+        let totalGeneratorMultiplier = 1;
+        let totalGlobalMultiplier = 1;
+        let additionalClickPower = 0;
+
+        generators.forEach(gen => {
+            if (gen.owned === 0) return;
+
+            switch (gen.effect) {
+                case 'pwr_per_second':
+                    // Géré séparément dans calculatePwrPerSecond
+                    break;
+                case 'pwr_per_click':
+                    additionalClickPower += gen.production * gen.owned;
+                    break;
+                case 'generator_multiplier':
+                    totalGeneratorMultiplier *= 1 + (gen.production * gen.owned);
+                    break;
+                case 'click_multiplier':
+                    totalClickMultiplier *= 1 + (gen.production * gen.owned);
+                    break;
+                case 'global_multiplier':
+                    totalGlobalMultiplier *= 1 + (gen.production * gen.owned);
+                    break;
+            }
+        });
+
+        // Mettre à jour pwrPerClick
+        const baseClickPower = 0.1;
+        setPwrPerClick((baseClickPower + additionalClickPower) * totalClickMultiplier * totalGlobalMultiplier);
+
+        return { totalGeneratorMultiplier, totalGlobalMultiplier };
     }, [generators]);
+
+    const calculatePwrPerSecond = useCallback(() => {
+        const { totalGeneratorMultiplier, totalGlobalMultiplier } = calculateEffects();
+
+        const baseProduction = generators
+            .filter(gen => gen.effect === 'pwr_per_second')
+            .reduce((acc, gen) => acc + (gen.production * gen.owned), 0);
+
+        setPwrPerSecond(baseProduction * totalGeneratorMultiplier * totalGlobalMultiplier);
+    }, [generators, calculateEffects]);
 
     useEffect(() => {
         calculatePwrPerSecond();
@@ -103,19 +141,35 @@ export function useGame() {
         return () => clearInterval(interval);
     }, [pwrPerSecond, progress]);
 
-    const purchaseGenerator = (id: string) => {
-        const generator = generators.find((g) => g.id === id);
-        if (!generator || pwr < generator.cost) return;
+    const purchaseGenerator = useCallback((id: string) => {
+        setGenerators(current => {
+            const generator = current.find(g => g.id === id);
 
-        setPwr((current) => current - generator.cost);
-        setGenerators(
-            generators.map((g) =>
-                g.id === id
-                    ? { ...g, owned: g.owned + 1, cost: Math.floor(g.cost * 1.15) }
-                    : g
-            )
-        );
-    };
+            // Vérification de sécurité
+            if (!generator || generator.cost > pwr) {
+                return current;
+            }
+
+            // D'abord déduire le coût
+            setPwr(currentPwr => {
+                const newPwr = currentPwr - generator.cost;
+                // Vérification supplémentaire pour éviter les valeurs négatives
+                return newPwr >= 0 ? newPwr : currentPwr;
+            });
+
+            // Ensuite mettre à jour le générateur
+            return current.map(gen => {
+                if (gen.id === id) {
+                    return {
+                        ...gen,
+                        owned: gen.owned + 1,
+                        cost: Math.floor(gen.baseCost * Math.pow(1.15, gen.owned + 1)),
+                    };
+                }
+                return gen;
+            });
+        });
+    }, [pwr]);
 
     const purchaseUpgrade = (id: string) => {
         const upgrade = upgrades.find((u) => u.id === id);

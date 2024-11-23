@@ -6,8 +6,9 @@ export interface GeneratorType {
   baseCost: number;
   production: number;
   owned: number;
-  category: 'generators' | 'boosters' | 'synergy';
+  category: 'generators';
   description: string;
+  effect: 'pwr_per_second';
   unlocked: boolean;
 }
 
