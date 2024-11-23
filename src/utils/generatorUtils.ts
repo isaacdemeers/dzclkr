@@ -55,22 +55,22 @@ export function calculateGeneratorStats(
 ) {
     const baseValues = {
         generators: {
-            baseCost: previousGenerator ? previousGenerator.cost * 3 : 25,
+            baseCost: previousGenerator ? previousGenerator.cost * 1.95 : 25,
             baseProduction: previousGenerator ? previousGenerator.production * 2 : 0.1,
-            costMultiplier: 3.0,
+            costMultiplier: 1.95,
             productionMultiplier: 3.0
         },
         clickers: {
-            baseCost: previousGenerator ? previousGenerator.cost * 3 : 25,
+            baseCost: previousGenerator ? previousGenerator.cost * 1.95 : 25,
             baseProduction: previousGenerator ? previousGenerator.production * 2 : 0.1,
-            costMultiplier: 3.0,
+            costMultiplier: 1.95,
             productionMultiplier: 3.0
         }
     };
 
     const values = baseValues[category];
 
-    // Calcul du coût basé sur le coût précédent
+    // Calcul du coût avec une réduction de 35%
     const cost = Math.floor(values.baseCost * Math.pow(values.costMultiplier, tier));
 
     // Production basée sur la production précédente
@@ -80,7 +80,7 @@ export function calculateGeneratorStats(
     const production = baseProduction * tierBonus * pwrBonus;
 
     return {
-        cost: Math.max(25, Math.floor(cost)),
+        cost: Math.max(25, Math.floor(cost * 0.65)),
         production: production
     };
 }
@@ -129,8 +129,8 @@ export function shouldGenerateNewGenerator(totalPwr: number, generators: Generat
     if (generators.length === 0) return true;
 
     const lastGenerator = generators[generators.length - 1];
-    // Rendre le prochain générateur disponible quand on a 50% du coût du dernier
-    return totalPwr >= lastGenerator.cost * 0.5;
+    // Rendre le prochain générateur disponible plus tôt avec le coût réduit
+    return totalPwr >= lastGenerator.cost * 0.3;
 }
 
 export function updateGenerators(generators: GeneratorType[], totalPwr: number): GeneratorType[] {
