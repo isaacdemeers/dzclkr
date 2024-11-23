@@ -17,6 +17,8 @@ export default function Home() {
     purchaseGenerator,
     purchaseUpgrade,
     progress,
+    powerBoostActive,
+    togglePowerBoost,
   } = useGame();
 
   return (
@@ -80,6 +82,17 @@ export default function Home() {
 
             <div className="flex-1 border border-[#FFA944]/10 rounded-lg bg-black/30 backdrop-blur-sm p-8 flex items-center justify-center">
               <div className="relative group">
+                <div className="absolute top-[-50px] left-1/2 transform -translate-x-1/2">
+                  <label className="flex items-center gap-2 cursor-pointer bg-black/50 px-4 py-2 rounded-lg border border-[#FFA944]/20">
+                    <input
+                      type="checkbox"
+                      checked={powerBoostActive}
+                      onChange={togglePowerBoost}
+                      className="w-4 h-4 accent-[#FFA944] bg-black/50 border border-[#FFA944]/30 rounded"
+                    />
+                    <span className="text-xs font-mono text-[#FFA944]">POWER BOOST (100 PWR/CLICK)</span>
+                  </label>
+                </div>
                 <div className="absolute inset-0 bg-[#FFA944]/10 rounded-full blur-3xl group-hover:bg-[#FFA944]/20 transition-all duration-300"></div>
                 <button
                   onClick={handleClick}
@@ -99,7 +112,7 @@ export default function Home() {
                     <div className="text-[#FFA944] text-2xl font-mono tracking-wider">GENERATE</div>
                     <div className="text-white font-bold text-4xl">POWER</div>
                     <div className="text-[#FFA944]/70 text-sm font-mono mt-2">
-                      +{pwrPerClick.toFixed(1)} PWR
+                      +{powerBoostActive ? '100' : pwrPerClick.toFixed(1)} PWR
                     </div>
                   </div>
                 </button>

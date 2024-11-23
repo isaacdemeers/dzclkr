@@ -411,7 +411,7 @@ export function useGame() {
   const calculateBonus = useCallback((genId: string) => {
     let bonus = 1;
     const purchasedUpgrades = upgrades.filter(u => u.purchased);
-    
+
     // Apply automation upgrades
     const autoBonus = purchasedUpgrades
       .filter(u => u.category === 'automation')

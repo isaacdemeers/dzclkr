@@ -60,12 +60,22 @@ export function useGame() {
         { id: 'quantum4', category: 'quantum', name: 'Universal Constant', cost: 500000, purchased: false, description: 'Rewrite physics for power', multiplier: 10 },
     ]);
 
+    const [powerBoostActive, setPowerBoostActive] = useState(false);
+
     const progress = useProgress();
 
     const handleClick = useCallback(() => {
-        setPwr(current => current + pwrPerClick);
-        progress.addProgress(pwrPerClick * 0.05);
-    }, [pwrPerClick, progress]);
+        setPwr((current) => {
+            const clickValue = powerBoostActive ? 100 : pwrPerClick;
+            return current + clickValue;
+        });
+
+        progress.addProgress(pwrPerClick * 0.1);
+    }, [pwrPerClick, powerBoostActive, progress]);
+
+    const togglePowerBoost = useCallback(() => {
+        setPowerBoostActive(prev => !prev);
+    }, []);
 
     const calculatePwrPerSecond = useCallback(() => {
         const total = generators.reduce((acc, gen) => {
@@ -149,5 +159,7 @@ export function useGame() {
         purchaseGenerator,
         purchaseUpgrade,
         progress,
+        powerBoostActive,
+        togglePowerBoost,
     };
 } 
