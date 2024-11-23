@@ -4,6 +4,7 @@ import React from 'react';
 import { Shield, Gauge, Zap, Target } from 'lucide-react';
 import { Shop } from './components/Shop';
 import { useGame } from './hooks/useGame';
+import { formatNumber } from '@/app/utils/formatNumber';
 
 export default function Home() {
   const {
@@ -58,19 +59,19 @@ export default function Home() {
               <div className="grid grid-cols-3 gap-4">
                 <div className="bg-black/50 border border-[#FFA944]/5 rounded-lg p-3">
                   <div className="text-2xl font-bold text-white mb-1 font-sans">
-                    {pwr.toFixed(2)}
+                    {formatNumber(pwr)}
                   </div>
                   <div className="text-xs text-[#FFA944] font-mono tracking-wider">TOTAL PWR</div>
                 </div>
                 <div className="bg-black/50 border border-[#FFA944]/5 rounded-lg p-3">
                   <div className="text-2xl font-bold text-white mb-1 font-sans">
-                    {pwrPerSecond.toFixed(2)}
+                    {formatNumber(pwrPerSecond)}
                   </div>
                   <div className="text-xs text-[#FFA944] font-mono tracking-wider">PWR/SEC</div>
                 </div>
                 <div className="bg-black/50 border border-[#FFA944]/5 rounded-lg p-3">
                   <div className="text-2xl font-bold text-white mb-1 font-sans">
-                    {pwrPerClick.toFixed(2)}
+                    {formatNumber(pwrPerClick)}
                   </div>
                   <div className="text-xs text-[#FFA944] font-mono tracking-wider">PWR/CLICK</div>
                 </div>
@@ -123,7 +124,7 @@ export default function Home() {
               SYSTEM LEVEL {progress.level}
             </div>
             <div className="font-mono text-xs text-zinc-500">
-              {progress.progress.toFixed(1)}%
+              {formatNumber(progress.progress)} / {formatNumber(progress.requiredExp)}
             </div>
           </div>
 
@@ -131,7 +132,7 @@ export default function Home() {
             <div
               className="h-full transition-all duration-150 ease-out"
               style={{
-                width: `${progress.progressPercentage}%`,
+                width: `${(progress.progress / progress.requiredExp) * 100}%`,
                 backgroundColor: progress.color,
                 boxShadow: `0 0 10px ${progress.color}`,
               }}
@@ -140,7 +141,7 @@ export default function Home() {
 
           <div className="mt-2 flex justify-center items-center">
             <div className="text-xs font-mono text-zinc-400">
-              PROGRESS TO NEXT LEVEL: {(100 - progress.progress).toFixed(1)}%
+              PROGRESS TO NEXT LEVEL: {formatNumber(progress.requiredExp - progress.progress)} PWR
             </div>
           </div>
         </div>

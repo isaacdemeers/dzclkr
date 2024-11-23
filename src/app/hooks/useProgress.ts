@@ -7,22 +7,22 @@ interface ProgressState {
     progress: number;
     progressPercentage: number;
     color: string;
+    requiredExp: number;
 }
 
 export function useProgress() {
+    const getRequiredExp = useCallback((level: number) => {
+        return Math.floor(100 * Math.pow(1.5, level - 1));
+    }, []);
+
     const [state, setState] = useState<ProgressState>({
         level: 1,
         progress: 0,
         progressPercentage: 0,
         color: '#FFA944',
+        requiredExp: getRequiredExp(1),
     });
 
-    // Calcule l'expérience nécessaire pour le niveau suivant
-    const getRequiredExp = useCallback((level: number) => {
-        return Math.floor(100 * Math.pow(1.5, level - 1));
-    }, []);
-
-    // Ajoute de la progression et gère le passage de niveau
     const addProgress = useCallback((amount: number) => {
         setState(current => {
             const requiredExp = getRequiredExp(current.level);
@@ -35,9 +35,6 @@ export function useProgress() {
                 newLevel++;
             }
 
-            // Calcule le pourcentage de progression
-            const progressPercentage = (newProgress / requiredExp) * 100;
-
             // Change la couleur en fonction du niveau
             const colors = ['#FFA944', '#FF44AA', '#44AAFF', '#44FF44', '#AA44FF'];
             const color = colors[(newLevel - 1) % colors.length];
@@ -45,8 +42,9 @@ export function useProgress() {
             return {
                 level: newLevel,
                 progress: newProgress,
-                progressPercentage,
+                progressPercentage: (newProgress / requiredExp) * 100,
                 color,
+                requiredExp: getRequiredExp(newLevel),
             };
         });
     }, [getRequiredExp]);
