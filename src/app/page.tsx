@@ -5,6 +5,7 @@ import { Shield, Gauge, Zap, Target } from 'lucide-react';
 import { Shop } from './components/Shop';
 import { useGame } from './hooks/useGame';
 import { formatNumber } from '@/app/utils/formatNumber';
+import { PlayerCard } from './components/PlayerCard';
 
 export default function Home() {
   const {
@@ -36,7 +37,17 @@ export default function Home() {
                 <div className="text-lg font-bold tracking-tight">Power Command</div>
               </div>
             </div>
+
             <div className="flex items-center gap-4 text-xs">
+              <label className="flex items-center gap-2 cursor-pointer bg-black/50 px-3 py-1.5 rounded-lg border border-[#FFA944]/20">
+                <input
+                  type="checkbox"
+                  checked={powerBoostActive}
+                  onChange={togglePowerBoost}
+                  className="w-3 h-3 accent-[#FFA944] bg-black/50 border border-[#FFA944]/30 rounded"
+                />
+                <span className="text-xs font-mono text-[#FFA944]">BOOST MODE</span>
+              </label>
               <div className="flex items-center gap-1 text-zinc-500 font-mono">
                 <Target className="w-4 h-4" />
                 SECTOR-DEADZONE
@@ -51,6 +62,12 @@ export default function Home() {
       </header>
 
       <main className="flex-1 container mx-auto p-4 flex flex-col gap-4 min-h-0 my-40">
+        <PlayerCard
+          level={progress.level}
+          progress={progress.progress}
+          requiredExp={progress.requiredExp}
+        />
+
         <div className="flex gap-4 flex-1 min-h-0">
           <div className="flex-1 flex flex-col gap-4 min-w-0">
             <div className="flex-none border border-[#FFA944]/10 rounded-lg bg-black/30 backdrop-blur-sm p-4">
@@ -82,17 +99,6 @@ export default function Home() {
 
             <div className="flex-1 border border-[#FFA944]/10 rounded-lg bg-black/30 backdrop-blur-sm p-8 flex items-center justify-center">
               <div className="relative group">
-                <div className="absolute top-[-50px] left-1/2 transform -translate-x-1/2">
-                  <label className="flex items-center gap-2 cursor-pointer bg-black/50 px-4 py-2 rounded-lg border border-[#FFA944]/20">
-                    <input
-                      type="checkbox"
-                      checked={powerBoostActive}
-                      onChange={togglePowerBoost}
-                      className="w-4 h-4 accent-[#FFA944] bg-black/50 border border-[#FFA944]/30 rounded"
-                    />
-                    <span className="text-xs font-mono text-[#FFA944]">POWER BOOST (100 PWR/CLICK)</span>
-                  </label>
-                </div>
                 <div className="absolute inset-0 bg-[#FFA944]/10 rounded-full blur-3xl group-hover:bg-[#FFA944]/20 transition-all duration-300"></div>
                 <button
                   onClick={handleClick}
@@ -120,7 +126,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex-1 border border-[#FFA944]/10 rounded-lg bg-black/30 backdrop-blur-sm p-4 min-w-0 overflow-hidden">
+          <div className="flex border border-[#FFA944]/10 rounded-lg bg-black/30 backdrop-blur-sm h-[485px] p-4 min-w-0 overflow-scroll">
             <Shop
               generators={generators}
               upgrades={upgrades}
@@ -128,34 +134,6 @@ export default function Home() {
               onPurchaseGenerator={purchaseGenerator}
               onPurchaseUpgrade={purchaseUpgrade}
             />
-          </div>
-        </div>
-
-        <div className="flex-none border border-[#FFA944]/10 rounded-lg bg-black/30 backdrop-blur-sm p-4">
-          <div className="flex items-center justify-between mb-2">
-            <div className="font-mono text-sm" style={{ color: progress.color }}>
-              SYSTEM LEVEL {progress.level}
-            </div>
-            <div className="font-mono text-xs text-zinc-500">
-              {formatNumber(progress.progress)} / {formatNumber(progress.requiredExp)}
-            </div>
-          </div>
-
-          <div className="h-2 bg-black/50 rounded-full overflow-hidden">
-            <div
-              className="h-full transition-all duration-150 ease-out"
-              style={{
-                width: `${(progress.progress / progress.requiredExp) * 100}%`,
-                backgroundColor: progress.color,
-                boxShadow: `0 0 10px ${progress.color}`,
-              }}
-            />
-          </div>
-
-          <div className="mt-2 flex justify-center items-center">
-            <div className="text-xs font-mono text-zinc-400">
-              PROGRESS TO NEXT LEVEL: {formatNumber(progress.requiredExp - progress.progress)} PWR
-            </div>
           </div>
         </div>
       </main>
