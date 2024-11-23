@@ -64,8 +64,19 @@ export function useGame() {
 
     const handleClick = useCallback(() => {
         setPwr(current => current + pwrPerClick);
-        progress.addProgress(0.2);
+        progress.addProgress(pwrPerClick * 0.01);
     }, [pwrPerClick, progress]);
+
+    const calculatePwrPerSecond = useCallback(() => {
+        const total = generators.reduce((acc, gen) => {
+            return acc + (gen.production * gen.owned);
+        }, 0);
+        setPwrPerSecond(total);
+    }, [generators]);
+
+    useEffect(() => {
+        calculatePwrPerSecond();
+    }, [generators, calculatePwrPerSecond]);
 
     useEffect(() => {
         let lastTick = Date.now();
@@ -76,7 +87,7 @@ export function useGame() {
             lastTick = now;
 
             setPwr(current => current + pwrPerSecond * delta);
-            progress.addProgress(pwrPerSecond * 0.05 * delta);
+            progress.addProgress(pwrPerSecond * 0.005 * delta);
         }, 50);
 
         return () => clearInterval(interval);
@@ -123,6 +134,9 @@ export function useGame() {
                 prev.map((g) => ({ ...g, production: g.production * upgrade.multiplier }))
             );
         }
+
+        // Recalculer le PWR/sec après l'application des multiplicateurs
+        calculatePwrPerSecond();
     };
 
     return {

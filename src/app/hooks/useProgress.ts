@@ -1,57 +1,58 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 
-const COLORS = [
-    '#FFA944', // Orange (default)
-    '#FF4444', // Red
-    '#44FF44', // Green
-    '#4444FF', // Blue
-    '#FF44FF', // Purple
-    '#44FFFF', // Cyan
-    '#FFFF44', // Yellow
-];
+interface ProgressState {
+    level: number;
+    progress: number;
+    progressPercentage: number;
+    color: string;
+}
 
 export function useProgress() {
-    const [level, setLevel] = useState(1);
-    const [progress, setProgress] = useState(0);
-    const [color, setColor] = useState(COLORS[0]);
-    const accumulatedProgress = useRef(0);
+    const [state, setState] = useState<ProgressState>({
+        level: 1,
+        progress: 0,
+        progressPercentage: 0,
+        color: '#FFA944',
+    });
 
+    // Calcule l'expérience nécessaire pour le niveau suivant
+    const getRequiredExp = useCallback((level: number) => {
+        return Math.floor(100 * Math.pow(1.5, level - 1));
+    }, []);
+
+    // Ajoute de la progression et gère le passage de niveau
     const addProgress = useCallback((amount: number) => {
-        accumulatedProgress.current += amount;
+        setState(current => {
+            const requiredExp = getRequiredExp(current.level);
+            let newProgress = current.progress + amount;
+            let newLevel = current.level;
 
-        // On met à jour l'état seulement si on a accumulé au moins 0.1%
-        if (accumulatedProgress.current >= 0.1) {
-            setProgress(currentProgress => {
-                const newProgress = currentProgress + accumulatedProgress.current;
-                accumulatedProgress.current = 0;
+            // Vérifie si on passe un niveau
+            while (newProgress >= requiredExp) {
+                newProgress -= requiredExp;
+                newLevel++;
+            }
 
-                if (newProgress >= 100) {
-                    // Level up
-                    setLevel(prev => prev + 1);
-                    // Évite les couleurs consécutives identiques
-                    const currentColorIndex = COLORS.indexOf(color);
-                    let newColorIndex;
-                    do {
-                        newColorIndex = Math.floor(Math.random() * COLORS.length);
-                    } while (newColorIndex === currentColorIndex);
-                    setColor(COLORS[newColorIndex]);
+            // Calcule le pourcentage de progression
+            const progressPercentage = (newProgress / requiredExp) * 100;
 
-                    // Retourne le surplus de progression
-                    return newProgress - 100;
-                }
+            // Change la couleur en fonction du niveau
+            const colors = ['#FFA944', '#FF44AA', '#44AAFF', '#44FF44', '#AA44FF'];
+            const color = colors[(newLevel - 1) % colors.length];
 
-                return newProgress;
-            });
-        }
-    }, [color]);
+            return {
+                level: newLevel,
+                progress: newProgress,
+                progressPercentage,
+                color,
+            };
+        });
+    }, [getRequiredExp]);
 
     return {
-        level,
-        progress,
-        color,
+        ...state,
         addProgress,
-        progressPercentage: Math.min(progress, 100)
     };
 } 
