@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Shield, Gauge, Zap, Target } from 'lucide-react';
 import { Shop } from './components/Shop';
 import { useGame } from './hooks/useGame';
@@ -8,6 +8,10 @@ import { formatNumber } from '@/app/utils/formatNumber';
 import { PlayerCard } from './components/PlayerCard';
 
 export default function Home() {
+  const [showEndPopup, setShowEndPopup] = useState(false);
+  const [showQuitPopup, setShowQuitPopup] = useState(false);
+  const [isQuitting, setIsQuitting] = useState(false);
+
   const {
     pwr,
     pwrPerClick,
@@ -20,10 +24,17 @@ export default function Home() {
     progress,
     powerBoostActive,
     togglePowerBoost,
+    resetGame,
   } = useGame();
 
+  useEffect(() => {
+    if (progress.level >= 100 && !showEndPopup) {
+      setShowEndPopup(true);
+    }
+  }, [progress.level]);
+
   return (
-    <div className="h-screen flex flex-col bg-zinc-950 text-zinc-100 overflow-hidden">
+    <div className={`h-screen flex flex-col bg-zinc-950 text-zinc-100 overflow-hidden transition-opacity duration-1000 ${isQuitting ? 'opacity-0' : 'opacity-100'}`}>
       <header className="bg-black/50 border-b border-[#FFA944]/10 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto py-3">
           <div className="flex items-center justify-between px-4">
@@ -63,14 +74,14 @@ export default function Home() {
 
       <main className="flex-1 container mx-auto p-4 flex flex-col gap-4 min-h-0 my-40">
         <PlayerCard
-          level={progress.level}
+          level={progress.level >= 100 ? 'MAX' : progress.level}
           progress={progress.progress}
           requiredExp={progress.requiredExp}
         />
 
         <div className="flex gap-4 flex-1 min-h-0">
           <div className="flex-1 flex flex-col gap-4 min-w-0">
-            <div className="flex-none border border-[#FFA944]/10 rounded-lg bg-black/30 backdrop-blur-sm p-4">
+            <div className="flex-none border border-[#FFA944]/10 rounded-lg bg-black/30 backdrop-blur-sm p-4 w-[600px]">
               <div className="font-mono text-sm text-[#FFA944] mb-4 flex items-center gap-2">
                 <Gauge className="w-4 h-4" />
                 SYSTEM METRICS
@@ -118,7 +129,7 @@ export default function Home() {
                     <div className="text-[#FFA944] text-2xl font-mono tracking-wider">GENERATE</div>
                     <div className="text-white font-bold text-4xl">POWER</div>
                     <div className="text-[#FFA944]/70 text-sm font-mono mt-2">
-                      +{powerBoostActive ? '100' : pwrPerClick.toFixed(1)} PWR
+                      +{powerBoostActive ? '100' : formatNumber(pwrPerClick)} PWR
                     </div>
                   </div>
                 </button>
@@ -126,7 +137,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex border border-[#FFA944]/10 rounded-lg bg-black/30 backdrop-blur-sm h-[485px] p-4 min-w-0 overflow-scroll">
+          <div className="flex border border-[#FFA944]/10 rounded-lg bg-black/30 backdrop-blur-sm h-[485px] p-4 min-w-0 overflow-scroll w-[500px]">
             <Shop
               generators={generators}
               upgrades={upgrades}
@@ -137,6 +148,55 @@ export default function Home() {
           </div>
         </div>
       </main>
+
+      {showEndPopup && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-black/90 border border-[#FFA944]/20 rounded-lg p-8 max-w-md w-full mx-4">
+            <div className="text-center">
+              <Shield className="w-16 h-16 text-[#FFA944] mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-[#FFA944] mb-4">You reached the maximum level</h2>
+              <button
+                onClick={() => {
+                  setShowEndPopup(false);
+                  setShowQuitPopup(true);
+                }}
+                className="px-6 py-3 bg-[#FFA944]/10 border border-[#FFA944]/20 rounded-lg text-[#FFA944] hover:bg-[#FFA944]/20 transition-all duration-200"
+              >
+                NEXT
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showQuitPopup && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-black/90 border border-[#FFA944]/20 rounded-lg p-8 max-w-md w-full mx-4">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-[#FFA944] mb-8">QUIT THE SIMULATION?</h2>
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={() => {
+                    resetGame();
+                    setShowQuitPopup(false);
+                  }}
+                  className="px-6 py-3 bg-[#FFA944]/10 border border-[#FFA944]/20 rounded-lg text-[#FFA944] hover:bg-[#FFA944]/20 transition-all duration-200"
+                >
+                  RESTART
+                </button>
+                <button
+                  onClick={() => {
+                    setIsQuitting(true);
+                  }}
+                  className="px-6 py-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 hover:bg-red-500/20 transition-all duration-200"
+                >
+                  QUIT
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

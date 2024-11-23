@@ -56,27 +56,33 @@ export function calculateGeneratorStats(
     const baseValues = {
         generators: {
             baseCost: previousGenerator ? previousGenerator.cost * 1.95 : 25,
-            baseProduction: previousGenerator ? previousGenerator.production * 2 : 0.1,
-            costMultiplier: 1.95,
-            productionMultiplier: 3.0
+            baseProduction: previousGenerator ? previousGenerator.production * 2.6 : 0.13,
+            costMultiplier: totalPwr >= 5e14 ? 1.5 : 1.95,
+            productionMultiplier: 3.9
         },
         clickers: {
             baseCost: previousGenerator ? previousGenerator.cost * 1.95 : 25,
-            baseProduction: previousGenerator ? previousGenerator.production * 2 : 0.1,
-            costMultiplier: 1.95,
-            productionMultiplier: 3.0
+            baseProduction: previousGenerator ? previousGenerator.production * 2.6 : 0.13,
+            costMultiplier: totalPwr >= 5e14 ? 1.5 : 1.95,
+            productionMultiplier: 3.9
         }
     };
 
     const values = baseValues[category];
 
-    // Calcul du coût avec une réduction de 35%
-    const cost = Math.floor(values.baseCost * Math.pow(values.costMultiplier, tier));
+    // Calcul du coût avec une progression réduite après 500T
+    let cost = values.baseCost;
+    if (totalPwr >= 5e14) {
+        // Progression plus douce après 500T
+        cost = Math.floor(values.baseCost * Math.pow(1.5, tier));
+    } else {
+        cost = Math.floor(values.baseCost * Math.pow(values.costMultiplier, tier));
+    }
 
-    // Production basée sur la production précédente
+    // Production augmentée de 30%
     const baseProduction = values.baseProduction;
-    const tierBonus = 1 + (tier * 0.2);
-    const pwrBonus = 1 + (Math.log10(totalPwr + 1) * 0.05);
+    const tierBonus = 1 + (tier * 0.26);
+    const pwrBonus = 1 + (Math.log10(totalPwr + 1) * 0.065);
     const production = baseProduction * tierBonus * pwrBonus;
 
     return {

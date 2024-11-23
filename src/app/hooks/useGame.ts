@@ -59,7 +59,7 @@ export function useGame() {
 
     const handleClick = useCallback(() => {
         setPwr((current) => {
-            const clickValue = powerBoostActive ? 100 : pwrPerClick;
+            const clickValue = powerBoostActive ? 10_000_000 : pwrPerClick;
             return current + clickValue;
         });
 
@@ -160,16 +160,28 @@ export function useGame() {
         );
     }, [pwr, generators]);
 
-    // Réinitialisation des améliorations tous les 100 niveaux
+    // Réinitialisation des améliorations au niveau 50 et tous les 100 niveaux ensuite
     useEffect(() => {
-        const resetLevel = Math.floor(progress.level / 100) * 100;
-        if (progress.level >= 100 && progress.level === resetLevel) {
+        // Réinitialisation au niveau 50
+        if (progress.level === 50) {
             setUpgrades(current =>
                 current.map(upgrade => ({
                     ...upgrade,
                     purchased: false
                 }))
             );
+        }
+        // Réinitialisation tous les 100 niveaux après le niveau 100
+        else {
+            const resetLevel = Math.floor(progress.level / 100) * 100;
+            if (progress.level >= 100 && progress.level === resetLevel) {
+                setUpgrades(current =>
+                    current.map(upgrade => ({
+                        ...upgrade,
+                        purchased: false
+                    }))
+                );
+            }
         }
     }, [progress.level]);
 
@@ -184,7 +196,7 @@ export function useGame() {
             upgrades.map((u) => (u.id === id ? { ...u, purchased: true } : u))
         );
 
-        // Appliquer les multiplicateurs en fonction de la catégorie
+        // Appliquer les multiplicateurs en fonction de la catégorie avec des valeurs plus faibles
         switch (upgrade.category) {
             case 'basic':
                 setPwrPerClick(current => current * upgrade.multiplier);
@@ -211,6 +223,24 @@ export function useGame() {
         calculatePwrPerSecond();
     }, [pwr, upgrades, calculatePwrPerSecond]);
 
+    const resetGame = useCallback(() => {
+        setPwr(0);
+        setPwrPerClick(0.1);
+        setPwrPerSecond(0);
+        setGenerators([
+            generateNewGenerator(0, [], 'generators'),
+            generateNewGenerator(0, [], 'clickers')
+        ]);
+        setUpgrades(current =>
+            current.map(upgrade => ({
+                ...upgrade,
+                purchased: false
+            }))
+        );
+        setPowerBoostActive(false);
+        progress.reset();
+    }, [progress]);
+
     return {
         pwr,
         pwrPerClick,
@@ -223,5 +253,6 @@ export function useGame() {
         progress,
         powerBoostActive,
         togglePowerBoost,
+        resetGame,
     };
 } 
