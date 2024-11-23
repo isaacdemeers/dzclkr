@@ -23,7 +23,7 @@ export function Shop({ upgrades, pwr, onPurchaseUpgrade }: ShopProps) {
   return (
     <div className="h-full flex flex-col bg-zinc-800/30 border border-zinc-700/50 rounded-lg backdrop-blur-sm">
       {/* Categories */}
-      <div className="flex p-2 h-full gap-2 bg-zinc-800/50 rounded-t-lg border-b border-zinc-700/50">
+      <div className="flex flex-wrap p-2 h-full gap-2 bg-zinc-800/50 rounded-t-lg border-b border-zinc-700/50">
         {CATEGORIES.map(category => (
           <button
             key={category.id}

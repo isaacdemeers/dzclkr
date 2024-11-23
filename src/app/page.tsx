@@ -34,7 +34,7 @@ export default function Home() {
   }, [progress.level]);
 
   return (
-    <div className={`h-screen flex flex-col bg-zinc-950 text-zinc-100 overflow-hidden transition-opacity duration-1000 ${isQuitting ? 'opacity-0' : 'opacity-100'}`}>
+    <div className="min-h-screen flex flex-col bg-zinc-950 text-zinc-100 overflow-y-auto">
       <header className="bg-black/50 border-b border-[#FFA944]/10 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto py-3">
           <div className="flex items-center justify-between px-4">
@@ -72,16 +72,15 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="flex items-center gap-4 justify-center flex-col m-[100px] h-full rounded-3xl border border-[#FFA944]/10 bg-black/30 backdrop-blur-sm p-4">
+      <main className="flex flex-col gap-4 m-[100px] h-full rounded-3xl border border-[#FFA944]/10 bg-black/30 backdrop-blur-sm p-4 overflow-hidden">
         <PlayerCard
           level={progress.level >= 100 ? 'MAX' : progress.level}
           progress={progress.progress}
           requiredExp={progress.requiredExp}
-          
         />
 
-        <div className="flex gap-4 items-center justify-center  w-full h-full">
-          <div className="flex h-full w-1/2  flex-col gap-4 ">
+        <div className="flex gap-4 h-[calc(100vh-400px)]">
+          <div className="flex h-full w-1/2 flex-col gap-4">
             <div className="flex w-full flex-col border border-[#FFA944]/10 rounded-lg bg-black/30 backdrop-blur-sm p-4">
               <div className="font-mono text-sm text-[#FFA944] mb-4 flex items-center gap-2">
                 <Gauge className="w-4 h-4" />
@@ -138,14 +137,16 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex w-1/2 h-full border border-[#FFA944]/10 rounded-lg bg-black/30 backdrop-blur-sm p-4 min-w-0 overflow-scroll w-[500px]">
-            <Shop
-              generators={generators}
-              upgrades={upgrades}
-              pwr={pwr}
-              onPurchaseGenerator={purchaseGenerator}
-              onPurchaseUpgrade={purchaseUpgrade}
-            />
+          <div className="w-1/2 border border-[#FFA944]/10 rounded-lg bg-black/30 backdrop-blur-sm p-4">
+            <div className="h-full overflow-hidden">
+              <Shop
+                generators={generators}
+                upgrades={upgrades}
+                pwr={pwr}
+                onPurchaseGenerator={purchaseGenerator}
+                onPurchaseUpgrade={purchaseUpgrade}
+              />
+            </div>
           </div>
         </div>
       </main>
