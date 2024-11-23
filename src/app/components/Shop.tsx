@@ -81,8 +81,8 @@ export function Shop({ generators, upgrades, pwr, onPurchaseGenerator, onPurchas
 
     return (
         <div className="h-full flex flex-col">
-            <Tabs defaultValue="generators" className="w-full flex flex-col flex-1">
-                <TabsList className="grid grid-cols-6 bg-black/50 border border-[#FFA944]/10 flex-none">
+            <Tabs defaultValue="generators" className="w-full flex flex-col ">
+                <TabsList className="flex  bg-black/50 border border-[#FFA944]/10 ">
                     {[
                         { value: 'generators', icon: Zap, label: 'GENERATORS', color: 'green' },
                         { value: 'clickers', icon: Shield, label: 'CLICKERS', color: 'blue' },
@@ -127,14 +127,14 @@ export function Shop({ generators, upgrades, pwr, onPurchaseGenerator, onPurchas
                     <TabsContent
                         key={category}
                         value={category}
-                        className="flex-1 mt-4 overflow-y-auto pr-2 space-y-2"
+                        className="flex w-full bg-red-500 flex-col mt-4 overflow-y-auto pr-2 space-y-2"
                     >
                         {upgrades
                             .filter((upgrade) => upgrade.category === category)
                             .map((upgrade) => (
                                 <div
                                     key={upgrade.id}
-                                    className={`
+                                    className={` 
                                         bg-black/50 border border-[#FFA944]/5 rounded-lg p-4
                                         transition-all duration-200
                                         ${upgrade.purchased
