@@ -44,8 +44,8 @@ export default function Home() {
                 <Shield className="w-6 h-6 text-[#FFA944] relative" />
               </div>
               <div>
-                <div className="text-xs text-[#FFA944] font-mono tracking-wider">TACTICAL SYSTEMS</div>
-                <div className="text-lg font-bold tracking-tight">Power Command</div>
+                <div className="text-xs text-[#FFA944] font-mono tracking-wider">// V0.1.1</div>
+                <div className="text-lg font-semibold font-sans text-slate-50 tracking-tight">POWER PROGRAM</div>
               </div>
             </div>
 
