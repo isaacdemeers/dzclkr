@@ -6,9 +6,9 @@ export interface GeneratorType {
   baseCost: number;
   production: number;
   owned: number;
-  category: 'generators';
+  category: 'generators' | 'clickers';
   description: string;
-  effect: 'pwr_per_second';
+  effect: 'pwr_per_second' | 'pwr_per_click';
   unlocked: boolean;
 }
 

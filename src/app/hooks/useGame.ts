@@ -23,7 +23,8 @@ export function useGame() {
     const [pwrPerClick, setPwrPerClick] = useState(0.1);
     const [pwrPerSecond, setPwrPerSecond] = useState(0);
     const [generators, setGenerators] = useState<GeneratorType[]>([
-        generateNewGenerator(0, []) // Premier générateur
+        generateNewGenerator(0, [], 'generators'), // Premier générateur de PWR/sec
+        generateNewGenerator(0, [], 'clickers')    // Premier générateur de PWR/click
     ]);
 
     const [upgrades, setUpgrades] = useState<Upgrade[]>([
@@ -73,58 +74,49 @@ export function useGame() {
     useEffect(() => {
         const updatedGenerators = updateGenerators(generators, pwr);
         if (updatedGenerators.length !== generators.length) {
-            setGenerators(updatedGenerators);
+            // Au lieu de remplacer tous les générateurs, ajoutons seulement les nouveaux
+            const newGenerators = updatedGenerators.filter(
+                newGen => !generators.some(existingGen => existingGen.id === newGen.id)
+            );
+            setGenerators(prev => [...prev, ...newGenerators]);
         }
     }, [pwr, generators]);
 
     const calculateEffects = useCallback(() => {
         let totalClickMultiplier = 1;
         let totalGeneratorMultiplier = 1;
-        let totalGlobalMultiplier = 1;
         let additionalClickPower = 0;
 
         generators.forEach(gen => {
             if (gen.owned === 0) return;
 
-            switch (gen.effect) {
-                case 'pwr_per_second':
-                    // Géré séparément dans calculatePwrPerSecond
-                    break;
-                case 'pwr_per_click':
-                    additionalClickPower += gen.production * gen.owned;
-                    break;
-                case 'generator_multiplier':
-                    totalGeneratorMultiplier *= 1 + (gen.production * gen.owned);
-                    break;
-                case 'click_multiplier':
-                    totalClickMultiplier *= 1 + (gen.production * gen.owned);
-                    break;
-                case 'global_multiplier':
-                    totalGlobalMultiplier *= 1 + (gen.production * gen.owned);
-                    break;
+            if (gen.effect === 'pwr_per_click') {
+                // Garder la production originale pour les générateurs possédés
+                additionalClickPower += gen.production * gen.owned;
             }
         });
 
         // Mettre à jour pwrPerClick
         const baseClickPower = 0.1;
-        setPwrPerClick((baseClickPower + additionalClickPower) * totalClickMultiplier * totalGlobalMultiplier);
-
-        return { totalGeneratorMultiplier, totalGlobalMultiplier };
+        setPwrPerClick((baseClickPower + additionalClickPower) * totalClickMultiplier);
     }, [generators]);
 
     const calculatePwrPerSecond = useCallback(() => {
-        const { totalGeneratorMultiplier, totalGlobalMultiplier } = calculateEffects();
-
         const baseProduction = generators
-            .filter(gen => gen.effect === 'pwr_per_second')
-            .reduce((acc, gen) => acc + (gen.production * gen.owned), 0);
+            .filter(gen => gen.effect === 'pwr_per_second' && gen.owned > 0)
+            .reduce((acc, gen) => {
+                // Garder la production originale pour les générateurs possédés
+                return acc + (gen.production * gen.owned);
+            }, 0);
 
-        setPwrPerSecond(baseProduction * totalGeneratorMultiplier * totalGlobalMultiplier);
-    }, [generators, calculateEffects]);
+        setPwrPerSecond(baseProduction);
+    }, [generators]);
 
+    // Mettre à jour les effets quand les générateurs changent
     useEffect(() => {
+        calculateEffects();
         calculatePwrPerSecond();
-    }, [generators, calculatePwrPerSecond]);
+    }, [generators, calculateEffects, calculatePwrPerSecond]);
 
     useEffect(() => {
         let lastTick = Date.now();
@@ -153,17 +145,17 @@ export function useGame() {
             // D'abord déduire le coût
             setPwr(currentPwr => {
                 const newPwr = currentPwr - generator.cost;
-                // Vérification supplémentaire pour éviter les valeurs négatives
                 return newPwr >= 0 ? newPwr : currentPwr;
             });
 
-            // Ensuite mettre à jour le générateur
+            // Ensuite mettre à jour le générateur en préservant sa production actuelle
             return current.map(gen => {
                 if (gen.id === id) {
+                    const newOwned = gen.owned + 1;
                     return {
                         ...gen,
-                        owned: gen.owned + 1,
-                        cost: Math.floor(gen.baseCost * Math.pow(1.15, gen.owned + 1)),
+                        owned: newOwned,
+                        cost: Math.floor(gen.baseCost * Math.pow(1.15, newOwned)),
                     };
                 }
                 return gen;
@@ -171,7 +163,7 @@ export function useGame() {
         });
     }, [pwr]);
 
-    const purchaseUpgrade = (id: string) => {
+    const purchaseUpgrade = useCallback((id: string) => {
         const upgrade = upgrades.find((u) => u.id === id);
         if (!upgrade || upgrade.purchased || pwr < upgrade.cost) return;
 
@@ -181,27 +173,36 @@ export function useGame() {
         );
 
         // Appliquer les multiplicateurs en fonction de la catégorie
-        if (upgrade.id.startsWith('basic')) {
-            setPwrPerClick((current) => current * upgrade.multiplier);
-        } else if (upgrade.id.startsWith('advanced')) {
-            setGenerators(prev =>
-                prev.map((g) => ({ ...g, production: g.production * upgrade.multiplier }))
-            );
-        } else if (upgrade.id.startsWith('military')) {
-            setPwrPerClick((current) => current * upgrade.multiplier);
-            setGenerators(prev =>
-                prev.map((g) => ({ ...g, production: g.production * (upgrade.multiplier / 2) }))
-            );
-        } else if (upgrade.id.startsWith('quantum')) {
-            setPwrPerClick((current) => current * upgrade.multiplier);
-            setGenerators(prev =>
-                prev.map((g) => ({ ...g, production: g.production * upgrade.multiplier }))
-            );
+        switch (upgrade.category) {
+            case 'basic':
+                // Multiplier directement le pwrPerClick
+                setPwrPerClick(current => current * upgrade.multiplier);
+                break;
+            case 'advanced':
+                // Multiplier la production des générateurs
+                setGenerators(prev =>
+                    prev.map((g) => ({ ...g, production: g.production * upgrade.multiplier }))
+                );
+                break;
+            case 'military':
+                // Multiplier à la fois le click et les générateurs
+                setPwrPerClick(current => current * upgrade.multiplier);
+                setGenerators(prev =>
+                    prev.map((g) => ({ ...g, production: g.production * (upgrade.multiplier / 2) }))
+                );
+                break;
+            case 'quantum':
+                // Multiplier tout
+                setPwrPerClick(current => current * upgrade.multiplier);
+                setGenerators(prev =>
+                    prev.map((g) => ({ ...g, production: g.production * upgrade.multiplier }))
+                );
+                break;
         }
 
         // Recalculer le PWR/sec après l'application des multiplicateurs
         calculatePwrPerSecond();
-    };
+    }, [pwr, upgrades, calculatePwrPerSecond]);
 
     return {
         pwr,

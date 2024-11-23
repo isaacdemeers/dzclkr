@@ -50,7 +50,10 @@ export function Shop({ generators, upgrades, pwr, onPurchaseGenerator, onPurchas
                         <div>
                             <div className="font-sans font-bold text-white">{generator.name}</div>
                             <div className="text-xs text-[#FFA944] font-mono tracking-wider">
-                                OUTPUT: {formatNumber(generator.production)} PWR/s
+                                {generator.category === 'generators'
+                                    ? `OUTPUT: ${formatNumber(generator.production)} PWR/s`
+                                    : `OUTPUT: +${formatNumber(generator.production)} PWR/click`
+                                }
                             </div>
                             <div className="text-xs text-zinc-500 font-mono mt-1">
                                 OWNED: {generator.owned}
@@ -79,9 +82,10 @@ export function Shop({ generators, upgrades, pwr, onPurchaseGenerator, onPurchas
     return (
         <div className="h-full flex flex-col">
             <Tabs defaultValue="generators" className="w-full flex flex-col flex-1">
-                <TabsList className="grid grid-cols-5 bg-black/50 border border-[#FFA944]/10 flex-none">
+                <TabsList className="grid grid-cols-6 bg-black/50 border border-[#FFA944]/10 flex-none">
                     {[
                         { value: 'generators', icon: Zap, label: 'GENERATORS', color: 'green' },
+                        { value: 'clickers', icon: Shield, label: 'CLICKERS', color: 'blue' },
                         { value: 'basic', icon: Cpu, label: 'BASIC', color: 'blue' },
                         { value: 'advanced', icon: Shield, label: 'ADVANCED', color: 'purple' },
                         { value: 'military', icon: Shield, label: 'MILITARY', color: 'red' },
@@ -95,7 +99,7 @@ export function Shop({ generators, upgrades, pwr, onPurchaseGenerator, onPurchas
                                 data-[state=active]:bg-[#FFA944]/10 
                                 data-[state=active]:text-[#FFA944]
                                 px-3 py-2
-                                ${index !== 4 ? 'border-r border-[#FFA944]/10' : ''}
+                                ${index !== 5 ? 'border-r border-[#FFA944]/10' : ''}
                                 transition-all duration-200
                                 hover:bg-[#FFA944]/5
                                 group
@@ -112,7 +116,11 @@ export function Shop({ generators, upgrades, pwr, onPurchaseGenerator, onPurchas
                 </TabsList>
 
                 <TabsContent value="generators">
-                    {renderGeneratorList(generators)}
+                    {renderGeneratorList(generators.filter(g => g.category === 'generators'))}
+                </TabsContent>
+
+                <TabsContent value="clickers">
+                    {renderGeneratorList(generators.filter(g => g.category === 'clickers'))}
                 </TabsContent>
 
                 {['basic', 'advanced', 'military', 'quantum'].map((category) => (
