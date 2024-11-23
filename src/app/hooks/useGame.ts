@@ -29,9 +29,9 @@ export function useGame() {
     const [pwrPerClick, setPwrPerClick] = useState(0.1);
     const [pwrPerSecond, setPwrPerSecond] = useState(0);
     const [generators, setGenerators] = useState([
-        { id: 'gen1', name: 'Basic Generator', cost: 1, production: 0.1, owned: 0 },
-        { id: 'gen2', name: 'Advanced Generator', cost: 10, production: 0.5, owned: 0 },
-        { id: 'gen3', name: 'Super Generator', cost: 50, production: 2, owned: 0 },
+        { id: 'gen1', name: 'Basic Generator', cost: 10, production: 0.1, owned: 0 },
+        { id: 'gen2', name: 'Advanced Generator', cost: 100, production: 1, owned: 0 },
+        { id: 'gen3', name: 'Quantum Generator', cost: 1000, production: 10, owned: 0 },
     ]);
 
     const [upgrades, setUpgrades] = useState<Upgrade[]>([
@@ -64,7 +64,7 @@ export function useGame() {
 
     const handleClick = useCallback(() => {
         setPwr(current => current + pwrPerClick);
-        progress.addProgress(pwrPerClick * 0.01);
+        progress.addProgress(pwrPerClick * 0.05);
     }, [pwrPerClick, progress]);
 
     const calculatePwrPerSecond = useCallback(() => {
@@ -87,7 +87,7 @@ export function useGame() {
             lastTick = now;
 
             setPwr(current => current + pwrPerSecond * delta);
-            progress.addProgress(pwrPerSecond * 0.005 * delta);
+            progress.addProgress(pwrPerSecond * 0.02 * delta);
         }, 50);
 
         return () => clearInterval(interval);
