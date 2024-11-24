@@ -74,7 +74,7 @@ export function Shop({ generators, upgrades, pwr, onPurchaseGenerator, onPurchas
     return (
         <div className="h-full flex flex-col">
             <Tabs defaultValue="generators" className="flex flex-col h-full">
-                <TabsList className=" h-fit gap-2 flex-wrap items-center justify-center bg-black/50 border border-[#FFA944]/10">
+                <TabsList className=" h-fit gap-1 flex-wrap items-center justify-between bg-black/50 border border-[#FFA944]/10">
                     {[
                         { value: 'generators', icon: Zap, label: 'GENERATORS' },
                         { value: 'clickers', icon: Shield, label: 'CLICKERS' },
@@ -87,7 +87,7 @@ export function Shop({ generators, upgrades, pwr, onPurchaseGenerator, onPurchas
                             key={tab.value}
                             value={tab.value}
                             className={`
-                                w-fit
+                                w-[31%]
                                 relative overflow-hidden
                                 data-[state=active]:bg-[#FFA944]/10 
                                 data-[state=active]:text-[#FFA944]
