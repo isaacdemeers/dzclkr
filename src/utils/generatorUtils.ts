@@ -55,13 +55,13 @@ export function calculateGeneratorStats(
 ) {
     const baseValues = {
         generators: {
-            baseCost: previousGenerator ? previousGenerator.cost * 1.95 : 25,
+            baseCost: previousGenerator ? previousGenerator.cost * 1.95 : 5,
             baseProduction: previousGenerator ? previousGenerator.production * 2.6 : 0.13,
             costMultiplier: totalPwr >= 5e14 ? 1.5 : 1.95,
             productionMultiplier: 3.9
         },
         clickers: {
-            baseCost: previousGenerator ? previousGenerator.cost * 1.95 : 25,
+            baseCost: previousGenerator ? previousGenerator.cost * 1.95 : 5,
             baseProduction: previousGenerator ? previousGenerator.production * 2.6 : 0.13,
             costMultiplier: totalPwr >= 5e14 ? 1.5 : 1.95,
             productionMultiplier: 3.9
@@ -86,7 +86,7 @@ export function calculateGeneratorStats(
     const production = baseProduction * tierBonus * pwrBonus;
 
     return {
-        cost: Math.max(25, Math.floor(cost * 0.65)),
+        cost: Math.floor(cost * 0.65),
         production: production
     };
 }
