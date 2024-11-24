@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Zap, Cpu, Shield, Atom, ChevronRight } from "lucide-react";
+import { Zap, Cpu, Shield, Atom, ChevronRight, Medal, ArrowUpCircle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatNumber } from "@/app/utils/formatNumber";
 import { GeneratorType } from "@/types/game";
@@ -74,24 +74,25 @@ export function Shop({ generators, upgrades, pwr, onPurchaseGenerator, onPurchas
     return (
         <div className="h-full flex flex-col">
             <Tabs defaultValue="generators" className="flex flex-col h-full">
-                <TabsList className=" flex h-fit gap-2 flex-wrap bg-black/50 border border-[#FFA944]/10">
+                <TabsList className=" h-fit gap-2 flex-wrap items-center justify-center bg-black/50 border border-[#FFA944]/10">
                     {[
                         { value: 'generators', icon: Zap, label: 'GENERATORS' },
                         { value: 'clickers', icon: Shield, label: 'CLICKERS' },
                         { value: 'basic', icon: Cpu, label: 'BASIC' },
-                        { value: 'advanced', icon: Shield, label: 'ADVANCED' },
-                        { value: 'military', icon: Shield, label: 'MILITARY' },
+                        { value: 'advanced', icon: ArrowUpCircle, label: 'ADVANCED' },
+                        { value: 'military', icon: Medal, label: 'MILITARY' },
                         { value: 'quantum', icon: Atom, label: 'QUANTUM' }
                     ].map((tab) => (
                         <TabsTrigger
                             key={tab.value}
                             value={tab.value}
                             className={`
-                                flex w-[32%]
+                                w-fit
                                 relative overflow-hidden
                                 data-[state=active]:bg-[#FFA944]/10 
                                 data-[state=active]:text-[#FFA944]
                                 px-3 py-2
+                                
                                 transition-all duration-200
                                 hover:bg-[#FFA944]/5
                                 group
