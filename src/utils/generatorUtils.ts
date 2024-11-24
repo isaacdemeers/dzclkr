@@ -27,11 +27,11 @@ const CLICKER_SUFFIXES = [
 const CATEGORY_EFFECTS = {
     generators: {
         description: (production: number) => `Generates ${production.toFixed(1)} PWR per second`,
-        effect: 'pwr_per_second' as const
+        effect: { type: 'generate' as const, value: 1 }
     },
     clickers: {
         description: (production: number) => `Adds ${production.toFixed(1)} PWR per click`,
-        effect: 'pwr_per_click' as const
+        effect: { type: 'multiply_click' as const, value: 1 }
     }
 };
 

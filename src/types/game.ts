@@ -6,10 +6,13 @@ export interface GeneratorType {
   baseCost: number;
   production: number;
   owned: number;
-  category: 'generators' | 'clickers';
+  category: 'generators' | 'clickers' | 'boosters';
   description: string;
-  effect: 'pwr_per_second' | 'pwr_per_click';
   unlocked: boolean;
+  effect: {
+    type: 'generate' | 'boost' | 'multiply_click' | 'automation_speed' | 'quantum_boost' | 'synergy_boost';
+    value: number;
+  };
 }
 
 export type UpgradeCategory = 'power' | 'automation' | 'quantum' | 'synergy';
@@ -21,9 +24,8 @@ export interface UpgradeType {
   cost: number;
   category: UpgradeCategory;
   effect: {
-    type: 'multiply_click' | 'boost_production' | 'automation_speed' | 'quantum_boost' | 'synergy_boost';
+    type: 'multiply_click' | 'automation_speed' | 'quantum_boost' | 'synergy_boost';
     value: number;
-    target?: string;
   };
   purchased: boolean;
   unlocked: boolean;

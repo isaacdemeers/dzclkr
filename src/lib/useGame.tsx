@@ -13,6 +13,7 @@ const INITIAL_GENERATORS: GeneratorType[] = [
     category: 'generators',
     description: 'A simple PWR generator',
     unlocked: true,
+    effect: { type: 'generate', value: 1 },
   },
   {
     id: 'gen2',
@@ -25,6 +26,7 @@ const INITIAL_GENERATORS: GeneratorType[] = [
     category: 'generators',
     description: 'More efficient PWR generation',
     unlocked: true,
+    effect: { type: 'generate', value: 1 },
   },
   {
     id: 'boost1',
@@ -37,6 +39,7 @@ const INITIAL_GENERATORS: GeneratorType[] = [
     category: 'boosters',
     description: 'Boosts all generators by 10%',
     unlocked: false,
+    effect: { type: 'boost', value: 1.1 },
   },
 ];
 
@@ -450,25 +453,20 @@ export function useGame() {
     return () => clearInterval(interval);
   }, [pwrPerSecond]);
 
+  const upgradesCondition = upgrades.filter((u) => u.purchased).length > 0;
+
   useEffect(() => {
-    const hasGeneratorRequirement = generators.some(g => g.owned >= 5 && g.category === 'generators');
-
-    setGenerators(current =>
-      current.map(gen => ({
-        ...gen,
-        unlocked: gen.category === 'generators' || hasGeneratorRequirement,
-      }))
-    );
-
-    setUpgrades(current =>
-      current.map(upgrade => ({
-        ...upgrade,
-        unlocked: !upgrade.requires || upgrade.requires.every(req =>
-          generators.find(gen => gen.id === req && gen.owned > 0)
-        ),
-      }))
-    );
-  }, [generators.map(g => g.owned).join(',')]);
+    if (upgradesCondition) {
+      setUpgrades(current =>
+        current.map(upgrade => ({
+          ...upgrade,
+          unlocked: !upgrade.requires || upgrade.requires.every(req =>
+            generators.find(gen => gen.id === req && gen.owned > 0)
+          ),
+        }))
+      );
+    }
+  }, [upgradesCondition, generators]);
 
   const handleClick = () => {
     setPwr(current => current + pwrPerClick);

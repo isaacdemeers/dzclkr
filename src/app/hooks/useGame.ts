@@ -89,7 +89,7 @@ export function useGame() {
         generators.forEach(gen => {
             if (gen.owned === 0) return;
 
-            if (gen.effect === 'pwr_per_click') {
+            if (gen.effect.type === 'generate') {
                 additionalClickPower += gen.production * gen.owned;
             }
         });
@@ -100,9 +100,8 @@ export function useGame() {
 
     const calculatePwrPerSecond = useCallback(() => {
         const baseProduction = generators
-            .filter(gen => gen.effect === 'pwr_per_second' && gen.owned > 0)
+            .filter(gen => gen.effect.type === 'generate' && gen.owned > 0)
             .reduce((acc, gen) => {
-                // Garder la production originale pour les générateurs possédés
                 return acc + (gen.production * gen.owned);
             }, 0);
 

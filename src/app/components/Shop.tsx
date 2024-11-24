@@ -4,14 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Zap, Cpu, Shield, Atom, ChevronRight } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatNumber } from "@/app/utils/formatNumber";
-
-interface Generator {
-    id: string;
-    name: string;
-    cost: number;
-    production: number;
-    owned: number;
-}
+import { GeneratorType } from "@/types/game";
 
 interface Upgrade {
     id: string;
@@ -23,7 +16,7 @@ interface Upgrade {
 }
 
 interface ShopProps {
-    generators: Generator[];
+    generators: GeneratorType[];
     upgrades: Upgrade[];
     pwr: number;
     onPurchaseGenerator: (id: string) => void;
@@ -31,7 +24,7 @@ interface ShopProps {
 }
 
 export function Shop({ generators, upgrades, pwr, onPurchaseGenerator, onPurchaseUpgrade }: ShopProps) {
-    const renderGeneratorList = (items: Generator[]) => (
+    const renderGeneratorList = (items: GeneratorType[]) => (
         <div className="flex-1 mt-4 overflow-y-auto space-y-2">
             {items.map((generator) => (
                 <div
