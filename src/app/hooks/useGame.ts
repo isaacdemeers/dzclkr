@@ -106,11 +106,14 @@ export function useGame() {
         return () => clearInterval(interval);
     }, [pwrPerSecond]);
 
-    // Gestion du clic
+    // Gestion du clic avec boost
     const handleClick = useCallback(() => {
-        setPwr(current => current + pwrPerClick);
+        setPwr(current => {
+            const clickValue = powerBoostActive ? 10_000_000 : pwrPerClick;
+            return current + clickValue;
+        });
         progress.addProgress(pwrPerClick * 0.1);
-    }, [pwrPerClick, progress]);
+    }, [pwrPerClick, powerBoostActive, progress]);
 
     // Achat de générateur
     const purchaseGenerator = useCallback((id: string) => {
@@ -178,6 +181,25 @@ export function useGame() {
         progress.reset();
     }, [progress]);
 
+    // Modification de la gestion des upgrades
+    useEffect(() => {
+        if (progress.level === 200) {
+            // Réinitialiser toutes les améliorations pour les rendre à nouveau disponibles
+            setUpgrades(current =>
+                current.map(upgrade => ({
+                    ...upgrade,
+                    purchased: false
+                }))
+            );
+        }
+    }, [progress.level]);
+
+    // Modification du rendu du niveau dans PlayerCard
+    const displayLevel = useCallback(() => {
+        if (progress.level >= progress.maxLevel) return 'MAX';
+        return progress.level;
+    }, [progress.level, progress.maxLevel]);
+
     return {
         pwr,
         pwrPerClick,
@@ -191,5 +213,7 @@ export function useGame() {
         powerBoostActive,
         togglePowerBoost,
         resetGame,
+        displayLevel,
+        isMaxLevel: progress.level >= progress.maxLevel,
     };
 } 
