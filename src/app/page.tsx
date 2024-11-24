@@ -7,7 +7,7 @@ import { useGame } from './hooks/useGame';
 import { formatNumber } from '@/app/utils/formatNumber';
 import { PlayerCard } from './components/PlayerCard';
 
-export default function Home() {
+export default function Home(): React.JSX.Element {
   const [showEndPopup, setShowEndPopup] = useState(false);
   const [showQuitPopup, setShowQuitPopup] = useState(false);
   const [isQuitting, setIsQuitting] = useState(false);
@@ -31,10 +31,11 @@ export default function Home() {
     if (progress.level >= 100 && !showEndPopup) {
       setShowEndPopup(true);
     }
-  }, [progress.level]);
+  }, [progress.level, showEndPopup]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-zinc-950 text-zinc-100 overflow-y-auto">
+    <div className={`min-h-screen flex flex-col bg-zinc-950 text-zinc-100 overflow-y-auto ${isQuitting ? 'opacity-0' : 'opacity-100'
+      }`}>
       <header className="bg-black/50 border-b border-[#FFA944]/10 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto py-3">
           <div className="flex items-center justify-between px-4">
@@ -44,7 +45,7 @@ export default function Home() {
                 <Shield className="w-6 h-6 text-[#FFA944] relative" />
               </div>
               <div>
-                <div className="text-xs text-[#FFA944] font-mono tracking-wider">// V0.1.1</div>
+                <div className="text-xs text-[#FFA944] font-mono tracking-wider">{'// V0.1.1'}</div>
                 <div className="text-lg font-semibold font-sans text-slate-50 tracking-tight">POWER PROGRAM</div>
               </div>
             </div>

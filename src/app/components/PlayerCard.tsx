@@ -3,7 +3,7 @@ import { Shield } from 'lucide-react';
 import { formatNumber } from '@/app/utils/formatNumber';
 
 interface PlayerCardProps {
-    level: number;
+    level: number | 'MAX';
     progress: number;
     requiredExp: number;
 }

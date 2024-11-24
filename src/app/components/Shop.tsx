@@ -1,6 +1,5 @@
 'use client';
 
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Zap, Cpu, Shield, Atom, ChevronRight } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -84,13 +83,13 @@ export function Shop({ generators, upgrades, pwr, onPurchaseGenerator, onPurchas
             <Tabs defaultValue="generators" className="flex flex-col h-full">
                 <TabsList className=" flex h-fit gap-2 flex-wrap bg-black/50 border border-[#FFA944]/10">
                     {[
-                        { value: 'generators', icon: Zap, label: 'GENERATORS', color: 'green' },
-                        { value: 'clickers', icon: Shield, label: 'CLICKERS', color: 'blue' },
-                        { value: 'basic', icon: Cpu, label: 'BASIC', color: 'blue' },
-                        { value: 'advanced', icon: Shield, label: 'ADVANCED', color: 'purple' },
-                        { value: 'military', icon: Shield, label: 'MILITARY', color: 'red' },
-                        { value: 'quantum', icon: Atom, label: 'QUANTUM', color: 'yellow' }
-                    ].map((tab, index) => (
+                        { value: 'generators', icon: Zap, label: 'GENERATORS' },
+                        { value: 'clickers', icon: Shield, label: 'CLICKERS' },
+                        { value: 'basic', icon: Cpu, label: 'BASIC' },
+                        { value: 'advanced', icon: Shield, label: 'ADVANCED' },
+                        { value: 'military', icon: Shield, label: 'MILITARY' },
+                        { value: 'quantum', icon: Atom, label: 'QUANTUM' }
+                    ].map((tab) => (
                         <TabsTrigger
                             key={tab.value}
                             value={tab.value}

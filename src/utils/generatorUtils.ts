@@ -140,7 +140,7 @@ export function shouldGenerateNewGenerator(totalPwr: number, generators: Generat
 }
 
 export function updateGenerators(generators: GeneratorType[], totalPwr: number): GeneratorType[] {
-    // Ne pas mettre à jour les stats des générateurs non achetés
+    // Met à jour les stats des générateurs existants
     const updatedGenerators = generators.map((gen) => {
         if (gen.owned > 0) {
             return gen; // Ne pas modifier les générateurs déjà achetés
@@ -150,7 +150,7 @@ export function updateGenerators(generators: GeneratorType[], totalPwr: number):
 
     // Vérifier les nouveaux générateurs pour chaque catégorie
     const categories: ('generators' | 'clickers')[] = ['generators', 'clickers'];
-    let newGenerators = [...updatedGenerators];
+    const newGenerators = [...updatedGenerators];
 
     categories.forEach(category => {
         const categoryGenerators = newGenerators.filter(g => g.category === category);

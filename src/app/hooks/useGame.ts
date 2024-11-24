@@ -83,20 +83,17 @@ export function useGame() {
     }, [pwr, generators]);
 
     const calculateEffects = useCallback(() => {
-        let totalClickMultiplier = 1;
-        let totalGeneratorMultiplier = 1;
+        const totalClickMultiplier = 1;
         let additionalClickPower = 0;
 
         generators.forEach(gen => {
             if (gen.owned === 0) return;
 
             if (gen.effect === 'pwr_per_click') {
-                // Garder la production originale pour les générateurs possédés
                 additionalClickPower += gen.production * gen.owned;
             }
         });
 
-        // Mettre à jour pwrPerClick
         const baseClickPower = 0.1;
         setPwrPerClick((baseClickPower + additionalClickPower) * totalClickMultiplier);
     }, [generators]);
